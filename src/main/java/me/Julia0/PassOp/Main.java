@@ -2,11 +2,16 @@ package me.Julia0.PassOp;
 
 import java.util.HashMap;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.Sound;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.Listener;
+import org.bukkit.command.CommandSender;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -25,7 +30,7 @@ public class Main extends JavaPlugin implements Listener, Runnable {
     Main helper = this;
 
     public void onEnable() {
-        System.out.println("All ok! ^_^");
+        System.out.println("[PassOp] All ok! ^_^");
         this.login.clear();
         saveDefaultConfig();
         for (Player p: Bukkit.getOnlinePlayers()) {
@@ -83,17 +88,25 @@ public class Main extends JavaPlugin implements Listener, Runnable {
             this.login.remove(event.getPlayer());
     }
 
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void Command(PlayerCommandPreprocessEvent event) {
+        for (Player p2: Bukkit.getOnlinePlayers()) {
+            if (p2.isOp() || p2.hasPermission("pass.op")) {
+
         if (event.getMessage().toLowerCase().startsWith("/pass")) {
             event.setCancelled(true);
             String[] mess2 = event.getMessage().toLowerCase().split(" ");
             if (mess2.length >= 1 &&
                     mess2[1].equals(getConfig().getString("pass")))
                 this.login.put(event.getPlayer(), Integer.valueOf(1));
+            p2.playSound(p2.getLocation(), Sound.BLOCK_NOTE_PLING, 10, 10);
         }
         if (this.login.containsKey(event.getPlayer()) && ((Integer)this.login.get(event.getPlayer())).intValue() == 0)
+            p2.sendMessage("§fНеверный §cпароль");
             event.setCancelled(true);
+    }
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
@@ -101,6 +114,7 @@ public class Main extends JavaPlugin implements Listener, Runnable {
         if (this.login.containsKey(event.getPlayer()) && ((Integer)this.login.get(event.getPlayer())).intValue() == 0)
             event.setCancelled(true);
     }
+
 
     public void run() {
         for (Player p: Bukkit.getOnlinePlayers()) {
